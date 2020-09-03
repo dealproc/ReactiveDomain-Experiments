@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using RD.Core.Messages;
 using RD.Core.Services;
-
+using RD.Core.ValueObjects;
 using ReactiveDomain.Foundation;
+using ReactiveDomain.Messaging;
 using ReactiveDomain.Messaging.Bus;
 
 namespace RD.Web {
@@ -17,6 +18,22 @@ namespace RD.Web {
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services) {
+          
+            var bootstrap = new Bootstrap();
+            bootstrap.Configure();
+
+            var mainBus = bootstrap.MainBus;
+            var cmd = MessageBuilder.New(() => new DeviceMsgs.Provision(
+                new DeviceId(Guid.NewGuid()),
+                new AccountId(Guid.NewGuid()),
+                new MyId(Guid.NewGuid()),
+                "TID",
+                "TestDevice",
+                DateTime.Now));
+
+            mainBus.Send(cmd);
+
+            /*
             //TODO: How does this get wired up so that I can communicate over the IDispatcher (which seems to implement IBus, etc.)
             IDispatcher dispatcher = default;
             ICorrelatedRepository repository = default;
@@ -33,12 +50,14 @@ namespace RD.Web {
             services
                 .AddScoped<IAutoActivate, Core.Services.Device.DeviceService>()
                 .AddScoped<IAutoActivate, Core.Services.Project.ProjectService>();
+            */
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
             // for all classes that wire-up to the bus, this may be the best way to get them
             // "newed-up" and usable.
+            /*
             app.Use(async (HttpContext context, Func<Task> _next) => {
                 context.RequestServices.GetServices<IAutoActivate>();
                 await _next();    
@@ -55,6 +74,7 @@ namespace RD.Web {
                     await context.Response.WriteAsync("Hello World!");
                 });
             });
+            */
         }
     }
 }

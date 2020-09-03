@@ -1,62 +1,69 @@
 using System;
 using System.Collections.Generic;
-
-using RD.Core.Commands.Device;
-
+using RD.Core.Messages;
 using ReactiveDomain.Foundation;
 using ReactiveDomain.Messaging;
 using ReactiveDomain.Messaging.Bus;
 
-namespace RD.Core.Services.Device {
-    public class DeviceService : IAutoActivate, IDisposable, IHandleCommand<Commands.Device.Activate>, IHandleCommand<Commands.Device.Deactivate>, IHandleCommand<Commands.Device.Provision> {
-        private readonly IDispatcher _dispatcher;
+namespace RD.Core.Services.Device
+{
+    public class DeviceService :
+        IHandleCommand<DeviceMsgs.Activate>,
+        IHandleCommand<DeviceMsgs.Deactivate>,
+        IHandleCommand<DeviceMsgs.Provision>,
+        IDisposable
+    {
         private readonly ICorrelatedRepository _repository;
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
-        private bool _hasBeenDisposed = false;
 
-        public DeviceService(IDispatcher dispatcher, ICorrelatedRepository repository) {
-            _dispatcher = dispatcher;
+
+        public DeviceService(IDispatcher bus, ICorrelatedRepository repository) {
             _repository = repository;
-
-            _dispatcher.Subscribe<Activate>(this);
-            _dispatcher.Subscribe<Deactivate>(this);
-            _dispatcher.Subscribe<Provision>(this);
+            _disposables.Add(bus.Subscribe<DeviceMsgs.Activate>(this));
+            _disposables.Add(bus.Subscribe<DeviceMsgs.Provision>(this));
+            _disposables.Add(bus.Subscribe<DeviceMsgs.Deactivate>(this));
         }
+
+        public CommandResponse Handle(DeviceMsgs.Provision cmd) {
+            var device = new Aggregates.Device(
+                cmd.DeviceId,
+                cmd.AccountId,
+                cmd.MyId,
+                cmd.TID,
+                cmd.Description,
+                cmd.Timestamp,
+                cmd);
+            _repository.Save(device);
+            return cmd.Succeed();
+        }
+        public CommandResponse Handle(DeviceMsgs.Activate cmd) {
+            var device = _repository.GetById<Aggregates.Device>((Guid)cmd.DeviceId.ToPrimitiveType(),cmd);
+            device.Activate(cmd.MyId, cmd.Timestamp); //n.b. is device is not found this will throw and the command system will catch it and convert it into a failed message
+            _repository.Save(device);
+            return cmd.Succeed();
+        }
+
+        public CommandResponse Handle(DeviceMsgs.Deactivate cmd) {
+            var device = _repository.GetById<Aggregates.Device>((Guid)cmd.DeviceId.ToPrimitiveType(),cmd);
+            device.Deactivate(cmd.MyId, cmd.Timestamp);
+            _repository.Save(device);
+            return cmd.Succeed();
+        }
+        #region IDispose
+        private bool _hasBeenDisposed = false;
         ~DeviceService() { Dispose(false); }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             Dispose(true);
         }
 
-        protected virtual void Dispose(bool isDisposing)
-        {
-            if(_hasBeenDisposed) return;
+        protected virtual void Dispose(bool isDisposing) {
+            if (_hasBeenDisposed) return;
 
             _disposables.ForEach(disposable => disposable.Dispose());
             _disposables.Clear();
             _hasBeenDisposed = true;
         }
-
-        public CommandResponse Handle(Activate message) {
-            var agg = _repository.GetById<Aggregates.Device>((Guid) message.Id.ToPrimitiveType(), message);
-            agg.On(message);
-            _repository.Save(agg);
-            return message.Succeed();
-        }
-
-        public CommandResponse Handle(Deactivate message) {
-            var agg = _repository.GetById<Aggregates.Device>((Guid) message.Id.ToPrimitiveType(), message);
-            agg.On(message);
-            _repository.Save(agg);
-            return message.Succeed();
-        }
-
-        public CommandResponse Handle(Provision message) {
-            var agg = new Aggregates.Device(message);
-            agg.On(message);
-            _repository.Save(agg);
-            return message.Succeed();
-        }
+        #endregion
     }
 }

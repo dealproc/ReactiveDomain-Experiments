@@ -1,3 +1,3 @@
-namespace RD.Core.Services {
+namespace RD.Core {
     public interface IAutoActivate { }
 }
