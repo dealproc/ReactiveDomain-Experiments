@@ -24,15 +24,20 @@ namespace RD.Web {
 
             var mainBus = bootstrap.MainBus;
             var cmd = MessageBuilder.New(() => new DeviceMsgs.Provision(
-                new DeviceId(Guid.NewGuid()),
-                new AccountId(Guid.NewGuid()),
-                new MyId(Guid.NewGuid()),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                Guid.NewGuid(),
                 "TID",
                 "TestDevice",
                 DateTime.Now));
 
             mainBus.Send(cmd);
 
+            var deviceList = bootstrap.DeviceListReadModel.Devices;
+
+            mainBus.Send(MessageBuilder.New(() =>new DeviceMsgs.Activate(deviceList[0].Id,Guid.NewGuid(), DateTime.Now)));
+          
+            
             /*
             //TODO: How does this get wired up so that I can communicate over the IDispatcher (which seems to implement IBus, etc.)
             IDispatcher dispatcher = default;

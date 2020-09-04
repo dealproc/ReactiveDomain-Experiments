@@ -37,14 +37,14 @@ namespace RD.Core.Services.Device
             return cmd.Succeed();
         }
         public CommandResponse Handle(DeviceMsgs.Activate cmd) {
-            var device = _repository.GetById<Aggregates.Device>((Guid)cmd.DeviceId.ToPrimitiveType(),cmd);
+            var device = _repository.GetById<Aggregates.Device>(cmd.DeviceId,cmd);
             device.Activate(cmd.MyId, cmd.Timestamp); //n.b. is device is not found this will throw and the command system will catch it and convert it into a failed message
             _repository.Save(device);
             return cmd.Succeed();
         }
 
         public CommandResponse Handle(DeviceMsgs.Deactivate cmd) {
-            var device = _repository.GetById<Aggregates.Device>((Guid)cmd.DeviceId.ToPrimitiveType(),cmd);
+            var device = _repository.GetById<Aggregates.Device>(cmd.DeviceId,cmd);
             device.Deactivate(cmd.MyId, cmd.Timestamp);
             _repository.Save(device);
             return cmd.Succeed();

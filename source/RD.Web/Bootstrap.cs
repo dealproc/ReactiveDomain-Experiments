@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using RD.Core.ReadModels;
 using RD.Core.Services.Device;
 using RD.Core.Services.Project;
 using ReactiveDomain;
@@ -22,6 +23,10 @@ namespace RD.Web
 #pragma warning restore 618
         public IStreamStoreConnection ESConn;
         public ICorrelatedRepository Repository;
+        public IStreamNameBuilder StreamNamer = new PrefixedCamelCaseStreamNameBuilder("RD.Web");
+        public IEventSerializer EventSerializer = new JsonMessageSerializer();
+        public DevicesRm DeviceListReadModel;
+
         public void Configure() {
             
             MainBus = new Dispatcher("main Bus");
@@ -42,14 +47,23 @@ StartStandardProjections: true
             ESConn = _esLoader.Connection;
            
             Repository = new CorrelatedStreamStoreRepository(
-                new PrefixedCamelCaseStreamNameBuilder("RD.Web"),
+                StreamNamer,
                 ESConn,
-                new JsonMessageSerializer(),
+                EventSerializer,
                 repo => new ReadThroughAggregateCache(repo));
             var deviceService = new DeviceService(MainBus,Repository);
-         
-            
-            //todo: register the created bus here with DI if that's the goal
+            IListener GetListener(string name) => new QueuedStreamListener(name, 
+                ESConn,
+                StreamNamer,
+                EventSerializer);
+            IStreamReader GetReader (string name) => new StreamReader(name,
+                ESConn,
+                StreamNamer,
+                EventSerializer);
+
+                DeviceListReadModel = new DevicesRm(GetListener,GetReader);
+                var deviceIds = DeviceListReadModel.Devices.Select(d => d.Id).ToList();
+                //todo: register the created bus here with DI if that's the goal
         }
     }
 }

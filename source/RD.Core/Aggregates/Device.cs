@@ -20,9 +20,9 @@ namespace RD.Core.Aggregates
             Register<DeviceMsgs.Provisioned>(Apply); 
         }
         
-        public Device(DeviceId deviceId, AccountId accountId, MyId myId, string tid, string description, DateTime timestamp, ICorrelatedMessage source)
+        public Device(Guid deviceId, Guid accountId, Guid myId, string tid, string description, DateTime timestamp, ICorrelatedMessage source)
             : this() {
-            Ensure.NotEmptyGuid((Guid)deviceId.ToPrimitiveType(), nameof(deviceId));
+            Ensure.NotEmptyGuid(deviceId, nameof(deviceId));
             if (source.CausationId == Guid.Empty)
                 Ensure.NotEmptyGuid(source.MsgId, nameof(source.MsgId));
 
@@ -40,30 +40,27 @@ namespace RD.Core.Aggregates
 
 
         private bool _isActive;
-        private AccountId _accountId;
-        private DeviceId _deviceId;
+        private Guid _deviceId;
         /* unless they are used to validate a condition or set an event property there is no need for properties on an aggregate                
         private MyId MyId { get; set; }
         private string TID { get; set; }       
         */
 
 
-        public void Activate(MyId myId, DateTime timeStamp) {
+        public void Activate(Guid myId, DateTime timeStamp) {
             if (_isActive) return;
             //todo validate myId and timestamp if required
             Raise(new DeviceMsgs.Activated(
                _deviceId,
-                _accountId,
                 myId,
                 timeStamp));
         }
 
-        public void Deactivate(MyId myId, DateTime timeStamp) {
+        public void Deactivate(Guid myId, DateTime timeStamp) {
             if (!_isActive) return;
             //todo validate myId and timestamp if required
             Raise(new DeviceMsgs.Deactivated(
                 _deviceId,
-                _accountId,
                 myId,
                 timeStamp));
 
@@ -71,9 +68,8 @@ namespace RD.Core.Aggregates
 
         private void Apply(DeviceMsgs.Provisioned evt) {
             
-            Id = (Guid) evt.DeviceId.ToPrimitiveType(); // setting the Base Id for the aggregate instance is required by repository
+            Id =  evt.DeviceId; // setting the Base Id for the aggregate instance is required by repository
             _deviceId = evt.DeviceId;
-            _accountId = evt.AccountId; //I think this is right, or can the account change on this device during activations?
         }
 
         
