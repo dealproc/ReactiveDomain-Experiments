@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RD.Core", "source\RD.Core\R
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RD.Web", "source\RD.Web\RD.Web.csproj", "{E15CFA80-1DDD-4526-B72C-38F9E2BC599C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RD.Core.Tests", "source\RD.Core.Tests\RD.Core.Tests.csproj", "{EB54399B-87EB-459F-A0C0-01D7EA56787D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,18 @@ Global
 		{E15CFA80-1DDD-4526-B72C-38F9E2BC599C}.Release|x64.Build.0 = Release|Any CPU
 		{E15CFA80-1DDD-4526-B72C-38F9E2BC599C}.Release|x86.ActiveCfg = Release|Any CPU
 		{E15CFA80-1DDD-4526-B72C-38F9E2BC599C}.Release|x86.Build.0 = Release|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Debug|x64.Build.0 = Debug|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Debug|x86.Build.0 = Debug|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Release|x64.ActiveCfg = Release|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Release|x64.Build.0 = Release|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Release|x86.ActiveCfg = Release|Any CPU
+		{EB54399B-87EB-459F-A0C0-01D7EA56787D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
